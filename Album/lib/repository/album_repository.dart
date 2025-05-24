@@ -7,8 +7,8 @@ import '../model/photo.dart';
 class AlbumRepository {
   final _baseUrl = 'https://jsonplaceholder.typicode.com';
 
-  // Cache for storing one photo per album ID
-  final Map<int, Photo> _photoCache = {};
+  // Optional: Cache entire photo list per album
+  final Map<int, List<Photo>> _photoCache = {};
 
   Future<List<Album>> fetchAlbums() async {
     final response = await http.get(Uri.parse('$_baseUrl/albums'));
@@ -20,25 +20,19 @@ class AlbumRepository {
     }
   }
 
-  Future<Photo> fetchPhoto(int albumId) async {
-    // Return cached photo if available
+  Future<List<Photo>> fetchPhotos(int albumId) async {
     if (_photoCache.containsKey(albumId)) {
       return _photoCache[albumId]!;
     }
 
-    // Otherwise fetch from API
-    final response = await http.get(Uri.parse('$_baseUrl/photos?albumId=$albumId&_limit=1'));
+    final response = await http.get(Uri.parse('$_baseUrl/photos?albumId=$albumId'));
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
-      if (data.isNotEmpty) {
-        final photo = Photo.fromJson(data.first);
-        _photoCache[albumId] = photo; // Cache it
-        return photo;
-      } else {
-        throw Exception('No photos found for album $albumId');
-      }
+      final photos = data.map((e) => Photo.fromJson(e)).toList();
+      _photoCache[albumId] = photos;
+      return photos;
     } else {
-      throw Exception('Failed to load photos');
+      throw Exception('Failed to load photos for album $albumId');
     }
   }
 }

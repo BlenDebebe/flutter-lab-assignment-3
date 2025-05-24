@@ -14,14 +14,14 @@ class AlbumBloc extends Bloc<AlbumEvent, AlbumState> {
       try {
         final albums = await repository.fetchAlbums();
 
-        final Map<int, Photo> photosMap = {};
+        final Map<int, List<Photo>> albumPhotosMap = {};
 
         for (final album in albums) {
-          final photo = await repository.fetchPhoto(album.id);
-          photosMap[album.id] = photo;
+          final photos = await repository.fetchPhotos(album.id); // fetches multiple photos per album
+          albumPhotosMap[album.id] = photos;
         }
 
-        emit(AlbumLoaded(albums: albums, albumPhotos: photosMap));
+        emit(AlbumLoaded(albums: albums, albumPhotos: albumPhotosMap));
       } catch (e) {
         emit(AlbumError(e.toString()));
       }

@@ -13,7 +13,7 @@ class AlbumLoading extends AlbumState {}
 
 class AlbumLoaded extends AlbumState {
   final List<Album> albums;
-  final Map<int, Photo> albumPhotos; // albumId -> photo
+  final Map<int, List<Photo>> albumPhotos; // albumId -> list of photos
 
   AlbumLoaded({required this.albums, required this.albumPhotos});
 
